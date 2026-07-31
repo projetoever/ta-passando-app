@@ -4,6 +4,9 @@ export type ApiConfig = {
   port: number;
   logLevel: string;
   databaseUrl?: string;
+  oidcIssuerUrl?: string;
+  oidcAudience?: string;
+  oidcJwksUrl?: string;
   corsOrigins: string[];
   positionTtlSeconds: number;
   publicPositionGridMeters: number;
@@ -28,6 +31,9 @@ export function loadConfig(environment = process.env): ApiConfig {
     port: positiveInteger(environment.PORT, 3001),
     logLevel: environment.LOG_LEVEL ?? "info",
     databaseUrl: environment.DATABASE_URL,
+    oidcIssuerUrl: environment.OIDC_ISSUER_URL || undefined,
+    oidcAudience: environment.OIDC_AUDIENCE || undefined,
+    oidcJwksUrl: environment.OIDC_JWKS_URL || undefined,
     corsOrigins: (environment.CORS_ORIGINS ?? "http://localhost:3000")
       .split(",")
       .map((origin) => origin.trim())
@@ -39,4 +45,3 @@ export function loadConfig(environment = process.env): ApiConfig {
     ),
   };
 }
-

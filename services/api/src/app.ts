@@ -8,14 +8,33 @@ import {
   PilotCategories,
   PilotNeighborhoods,
 } from "@ta-passando/contracts";
+import type { AccessTokenVerifier } from "./auth/authorization";
+import {
+  OidcAccessTokenVerifier,
+  UnavailableAccessTokenVerifier,
+} from "./auth/oidc-verifier";
 import type { ApiConfig } from "./config";
+import { connectDatabase } from "./infrastructure/database";
+import {
+  PostgresPilotRepository,
+  UnavailablePilotRepository,
+  type PilotRepository,
+} from "./modules/pilot/repository";
+import { registerPilotRoutes } from "./modules/pilot/routes";
 
 type CreateAppOptions = {
   config: ApiConfig;
   logger?: boolean;
+  repository?: PilotRepository;
+  tokenVerifier?: AccessTokenVerifier;
 };
 
-export async function createApp({ config, logger = true }: CreateAppOptions) {
+export async function createApp({
+  config,
+  logger = true,
+  repository: injectedRepository,
+  tokenVerifier: injectedTokenVerifier,
+}: CreateAppOptions) {
   const app = Fastify({
     logger: logger && config.logLevel !== "silent"
       ? {
@@ -53,6 +72,10 @@ export async function createApp({ config, logger = true }: CreateAppOptions) {
       servers: [{ url: "/", description: "Ambiente atual" }],
       tags: [
         { name: "system", description: "Saúde e capacidades da plataforma" },
+        { name: "identity", description: "Conta e perfil do morador" },
+        { name: "catalog", description: "Bairros e categorias do piloto" },
+        { name: "seller", description: "Cadastro e catálogo do vendedor" },
+        { name: "admin", description: "Aprovação e governança" },
       ],
     },
   });
@@ -86,8 +109,11 @@ export async function createApp({ config, logger = true }: CreateAppOptions) {
         response: {
           200: Type.Object({
             product: Type.Literal("Tá Passando"),
-            stage: Type.Literal("foundation"),
-            dataMode: Type.Literal("simulated"),
+            stage: Type.Literal("identity-catalog"),
+            dataMode: Type.Union([
+              Type.Literal("simulated"),
+              Type.Literal("persistent"),
+            ]),
             gpsEnabled: Type.Literal(false),
             neighborhoods: Type.Array(Type.String()),
             categories: Type.Array(Type.String()),
@@ -95,6 +121,7 @@ export async function createApp({ config, logger = true }: CreateAppOptions) {
               Type.Object({
                 id: Type.String(),
                 status: Type.Union([
+                  Type.Literal("ready"),
                   Type.Literal("foundation"),
                   Type.Literal("planned"),
                 ]),
@@ -106,14 +133,14 @@ export async function createApp({ config, logger = true }: CreateAppOptions) {
     },
     async () => ({
       product: "Tá Passando" as const,
-      stage: "foundation" as const,
-      dataMode: "simulated" as const,
+      stage: "identity-catalog" as const,
+      dataMode: config.databaseUrl ? "persistent" as const : "simulated" as const,
       gpsEnabled: false as const,
       neighborhoods: [...PilotNeighborhoods],
       categories: [...PilotCategories],
       modules: [
-        { id: "identity", status: "foundation" as const },
-        { id: "catalog", status: "planned" as const },
+        { id: "identity", status: "ready" as const },
+        { id: "catalog", status: "ready" as const },
         { id: "routes", status: "foundation" as const },
         { id: "requests", status: "foundation" as const },
         { id: "notifications", status: "planned" as const },
@@ -121,6 +148,33 @@ export async function createApp({ config, logger = true }: CreateAppOptions) {
       ],
     }),
   );
+
+  let repository = injectedRepository;
+  if (!repository && config.databaseUrl) {
+    const database = connectDatabase(config.databaseUrl);
+    repository = new PostgresPilotRepository(database);
+    app.addHook("onClose", async () => {
+      await database.end({ timeout: 5 });
+    });
+  }
+  repository ??= new UnavailablePilotRepository();
+
+  let tokenVerifier = injectedTokenVerifier;
+  if (
+    !tokenVerifier &&
+    config.oidcIssuerUrl &&
+    config.oidcAudience &&
+    config.oidcJwksUrl
+  ) {
+    tokenVerifier = new OidcAccessTokenVerifier({
+      issuer: config.oidcIssuerUrl,
+      audience: config.oidcAudience,
+      jwksUrl: config.oidcJwksUrl,
+    });
+  }
+  tokenVerifier ??= new UnavailableAccessTokenVerifier();
+
+  await registerPilotRoutes(app, { repository, tokenVerifier });
 
   app.setErrorHandler((error: FastifyError, request, reply) => {
     const statusCode =

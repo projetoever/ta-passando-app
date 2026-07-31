@@ -9,7 +9,7 @@ import {
 const verifier: AccessTokenVerifier = {
   async verify(token) {
     if (token !== "valid-test-token") throw new AuthenticationError("Token inválido.");
-    return { subject: "user-1", roles: ["seller"] };
+    return { subject: "user-1", provider: "test" };
   },
 };
 
@@ -21,15 +21,14 @@ describe("authorization boundary", () => {
   });
 
   it("keeps role checks independent from the identity provider", async () => {
-    const principal = await authenticateRequest(
+    await authenticateRequest(
       { headers: { authorization: "Bearer valid-test-token" } },
       verifier,
     );
 
-    expect(() => requireAnyRole(principal, ["seller"])).not.toThrow();
-    expect(() => requireAnyRole(principal, ["admin"])).toThrow(
+    expect(() => requireAnyRole("seller", ["seller"])).not.toThrow();
+    expect(() => requireAnyRole("seller", ["admin"])).toThrow(
       "O perfil não possui permissão",
     );
   });
 });
-
