@@ -2,9 +2,9 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Tá Passando",
-    short_name: "Tá Passando",
-    description: "Comércio do bairro em movimento.",
+    name: "TE Vi na TV",
+    short_name: "TE Vi",
+    description: "O vendedor do bairro perto de você.",
     start_url: "/",
     display: "standalone",
     background_color: "#fbf8f1",

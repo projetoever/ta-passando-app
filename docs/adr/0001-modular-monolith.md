@@ -4,7 +4,7 @@ Status: aceito em 31/07/2026.
 
 ## Decisão
 
-O Tá Passando começa com uma API Fastify única, organizada por módulos de domínio e compartilhando contratos TypeScript com as interfaces. A PWA, o painel e o aplicativo Android são clientes separados dessa API.
+O TE Vi na TV começa com uma API Fastify única, organizada por módulos de domínio e compartilhando contratos TypeScript com as interfaces. A PWA, o painel e o aplicativo Android são clientes separados dessa API.
 
 ## Motivo
 
@@ -22,4 +22,3 @@ O piloto precisa de implantação simples, auditoria centralizada e baixo custo 
 - Auditoria e métricas.
 
 Cada módulo terá contrato e armazenamento próprios dentro do mesmo processo. Localização, notificações e processamento assíncrono poderão ser extraídos quando métricas reais demonstrarem necessidade.
-

@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Tá Passando — Vendedor",
+    "name": "TE Vi na TV — Vendedor",
     "slug": "ta-passando-vendedor",
     "version": "0.1.0",
     "orientation": "portrait",
@@ -20,8 +20,8 @@
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "O Tá Passando usa sua localização somente durante o Modo Rota para mostrar sua aproximação aos clientes.",
-          "locationAlwaysAndWhenInUsePermission": "Durante o Modo Rota, o Tá Passando precisa atualizar sua posição mesmo com a tela bloqueada. Você pode encerrar o rastreamento a qualquer momento.",
+          "locationWhenInUsePermission": "O TE Vi na TV usa sua localização somente durante o Modo Rota para mostrar sua aproximação aos clientes.",
+          "locationAlwaysAndWhenInUsePermission": "Durante o Modo Rota, o TE Vi na TV precisa atualizar sua posição mesmo com a tela bloqueada. Você pode encerrar o rastreamento a qualquer momento.",
           "isAndroidBackgroundLocationEnabled": true,
           "isAndroidForegroundServiceEnabled": true
         }
@@ -34,4 +34,3 @@
     }
   }
 }
-

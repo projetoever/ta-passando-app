@@ -52,7 +52,7 @@ export default function App() {
         <View style={styles.header}>
           <View style={styles.brandMark}><Text style={styles.brandPin}>⌖</Text></View>
           <View style={styles.headerCopy}>
-            <Text style={styles.brand}>Tá Passando</Text>
+            <Text style={styles.brand}>TE Vi na TV</Text>
             <Text style={styles.pilot}>VENDEDOR · PILOTO</Text>
           </View>
           <View style={styles.avatar}><Text style={styles.avatarText}>OZ</Text></View>
@@ -169,4 +169,3 @@ const styles = StyleSheet.create({
   acceptButtonText: { color: "#FFFFFF", fontSize: 13, fontWeight: "800" },
   footer: { color: colors.muted, fontSize: 11, textAlign: "center", marginTop: 18 },
 });
-

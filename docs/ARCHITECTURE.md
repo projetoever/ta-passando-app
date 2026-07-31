@@ -77,7 +77,7 @@ Módulos de domínio:
 
 - Google Identity Platform/Firebase Authentication emite o token do usuário.
 - A API valida assinatura, emissor e audiência por OIDC/JWKS.
-- Nenhuma senha é armazenada no banco do Tá Passando.
+- Nenhuma senha é armazenada no banco do TE Vi na TV.
 - O PostgreSQL mantém o papel operacional (`customer`, `seller`, `admin`) e o estado da conta.
 - Todo novo usuário começa como morador; o papel de vendedor é concedido somente após aprovação administrativa.
 
@@ -189,11 +189,15 @@ Implementado:
 - esquema PostgreSQL/PostGIS inicial;
 - aplicativo Android demonstrativo no visual Bairro Vivo;
 - pipeline de validação no GitHub.
+- simulação integrada no navegador entre morador, vendedor e administração;
+- ciclo completo demonstrável: envio, aceite, deslocamento, chegada, conclusão, cancelamento e avaliação;
+- Modo Rota demonstrativo com pausa, retomada, categorias e formas de recebimento;
+- estado local do cenário restrito ao aparelho, sem API, GPS ou dados pessoais reais.
 
 Ainda não ativado:
 
 - projeto do Google Identity Platform e ambiente Cloud SQL do piloto;
 - coleta de GPS;
-- persistência do fluxo “Quero que passe” na interface pública;
+- persistência de servidor do fluxo “Quero que passe” (a demonstração usa apenas estado local no aparelho);
 - WebSocket, FCM e Redis;
 - documentos reais de vendedores.

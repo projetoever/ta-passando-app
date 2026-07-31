@@ -64,13 +64,13 @@ export default function RegistrationPreview() {
   return (
     <main className="registration-shell">
       <header className="registration-header">
-        <Link className="brand" href="/" aria-label="Tá Passando — início">
+        <Link className="brand" href="/" aria-label="TE Vi na TV — início">
           <span className="brand-mark" aria-hidden="true">
             <MapPin size={26} strokeWidth={3} />
             <i />
           </span>
-          <span>Tá Passando</span>
-          <small>PILOTO</small>
+          <span>TE Vi na TV</span>
+          <small>NOME EM TESTE</small>
         </Link>
         <span className="secure-label"><ShieldCheck size={16} /> Cadastro protegido</span>
       </header>
@@ -80,7 +80,7 @@ export default function RegistrationPreview() {
           <span className="section-kicker">Bairro Vivo</span>
           <h1>Uma conta simples para comprar ou vender perto de casa.</h1>
           <p>
-            A identidade será confirmada pelo Google Identity Platform. O Tá Passando
+            A identidade será confirmada pelo Google Identity Platform. O TE Vi na TV
             guarda apenas o perfil necessário para operar o piloto.
           </p>
 
@@ -107,7 +107,7 @@ export default function RegistrationPreview() {
           {step === "profile" && (
             <div className="registration-step">
               <span className="step-caption">PASSO 1</span>
-              <h2>Como você quer usar o Tá Passando?</h2>
+              <h2>Como você quer usar o TE Vi na TV?</h2>
               <p>Você poderá solicitar a mudança de perfil depois.</p>
 
               <div className="profile-choice-grid">
@@ -152,7 +152,7 @@ export default function RegistrationPreview() {
 
               <div className="identity-provider-note">
                 <ShieldCheck size={20} />
-                <span><strong>Identidade gerenciada</strong> O acesso real será confirmado por código ou conta Google, sem senha armazenada pelo Tá Passando.</span>
+                <span><strong>Identidade gerenciada</strong> O acesso real será confirmado por código ou conta Google, sem senha armazenada pelo TE Vi na TV.</span>
               </div>
 
               <button className="registration-primary" type="submit">

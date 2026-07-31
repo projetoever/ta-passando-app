@@ -65,7 +65,7 @@ export async function createApp({
   await app.register(swagger, {
     openapi: {
       info: {
-        title: "Tá Passando API",
+        title: "TE Vi na TV API",
         description: "Contrato público da versão 0.1.0-pilot.",
         version: "0.1.0",
       },
@@ -108,7 +108,7 @@ export async function createApp({
         tags: ["system"],
         response: {
           200: Type.Object({
-            product: Type.Literal("Tá Passando"),
+            product: Type.Literal("TE Vi na TV"),
             stage: Type.Literal("identity-catalog"),
             dataMode: Type.Union([
               Type.Literal("simulated"),
@@ -132,7 +132,7 @@ export async function createApp({
       },
     },
     async () => ({
-      product: "Tá Passando" as const,
+      product: "TE Vi na TV" as const,
       stage: "identity-catalog" as const,
       dataMode: config.databaseUrl ? "persistent" as const : "simulated" as const,
       gpsEnabled: false as const,

@@ -21,7 +21,7 @@ Papéis e estados de negócio permanecem no PostgreSQL:
 
 ## Consequências
 
-- O Tá Passando não armazena senhas.
+- O TE Vi na TV não armazena senhas.
 - Web e Android usam a mesma identidade.
 - A troca futura de provedor é possível porque a API depende do contrato OIDC, não do SDK do cliente.
 - A ativação real exige projeto, emissor, audiência e JWKS configurados no ambiente.
