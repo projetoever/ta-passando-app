@@ -7,17 +7,18 @@ Construir uma plataforma de dois lados que responda rapidamente:
 - Morador: “Quem está passando perto de mim e quando pode chegar?”
 - Vendedor: “Onde existe demanda suficiente para eu ajustar minha rota?”
 
-O protótipo deste repositório concentra as três interfaces em Vinext para acelerar a validação visual. A arquitetura abaixo é o destino recomendado para o piloto com usuários reais.
+O protótipo aprovado continua concentrando a PWA do morador e o painel administrativo em Vinext. A fundação técnica acrescenta uma API Fastify, contratos compartilhados, domínio testável, aplicativo Android inicial e PostgreSQL/PostGIS local. Os dados visíveis permanecem simulados até a integração segura dos fluxos reais.
 
 ## 2. Visão de componentes
 
 ```mermaid
 flowchart TD
-    C["PWA do morador"] --> API["API pública"]
+    C["PWA do morador"] --> API["Monólito modular Fastify"]
     V["App Android do vendedor"] --> API
     A["Painel administrativo"] --> API
     API --> DB["PostgreSQL + PostGIS"]
-    API --> RT["Tempo real e notificações"]
+    API --> ASYNC["FCM e tarefas assíncronas"]
+    API --> RT["WebSocket + Redis quando necessário"]
 ```
 
 ## 3. Aplicações
@@ -52,13 +53,13 @@ flowchart TD
 
 ## 4. Backend
 
-Stack recomendada:
+Stack adotada:
 
 - Node.js + TypeScript + Fastify.
 - PostgreSQL + PostGIS.
 - WebSocket para eventos ativos.
 - Firebase Cloud Messaging para notificações push.
-- Armazenamento de objetos compatível com S3 para documentos de verificação.
+- Cloud Storage para documentos de verificação no piloto hospedado.
 - Redis somente quando volume, filas ou presença distribuída justificarem.
 
 Módulos de domínio:
@@ -123,7 +124,22 @@ As posições não devem ser gravadas indefinidamente. O estado público pode us
 - Registro de acesso a documentos e ações de moderação.
 - Política explícita de exclusão e retenção.
 
-## 8. Ambientes
+## 8. Hospedagem escalável
+
+| Componente | Serviço alvo | Estratégia |
+|---|---|---|
+| PWA e painel | Sites nesta demonstração; Cloud Run/CDN no piloto | Conteúdo público distribuído e implantação versionada |
+| API | Cloud Run em `southamerica-east1` | Escala horizontal com limite de instâncias |
+| Banco | Cloud SQL PostgreSQL + PostGIS | Backups, alta disponibilidade futura e conexão privada |
+| Arquivos | Cloud Storage | Acesso temporário e auditável |
+| Notificações | Firebase Cloud Messaging | Envio somente pelo backend |
+| Segredos | Secret Manager | Nenhum segredo no repositório ou APK |
+| Tarefas | Cloud Tasks | Expiração, notificações e rotinas assíncronas |
+| Redis | Memorystore, somente quando necessário | Sincronização de WebSocket entre instâncias |
+
+O piloto começa como monólito modular. A API não mantém sessão em memória e poderá receber novas instâncias sem alterar os clientes. O número máximo de instâncias será limitado para proteger custo e conexões do banco.
+
+## 9. Ambientes
 
 | Ambiente | Uso | Dados |
 |---|---|---|
@@ -133,24 +149,40 @@ As posições não devem ser gravadas indefinidamente. O estado público pode us
 
 O ambiente de demonstração nunca deve chamar serviços de localização ou notificação reais.
 
-## 9. Organização futura do código
+## 10. Organização atual do código
 
 ```text
+app/                     PWA do morador e painel administrativo
 apps/
-  customer-pwa/
-  seller-mobile/
-  admin-web/
+  seller-mobile/         Aplicativo Android Expo
 services/
-  api/
+  api/                   API Fastify e OpenAPI
 packages/
-  contracts/
-  domain/
-  design-system/
-  observability/
+  contracts/             Contratos TypeBox compartilhados
+  domain/                Regras de negócio sem infraestrutura
 infra/
-  database/
-  deployment/
+  database/              PostGIS local e migrações
 docs/
 ```
 
-Esta separação deve ocorrer somente quando o fluxo visual estiver aprovado e a validação em campo confirmar os comportamentos essenciais.
+A separação física da PWA e do painel em aplicações independentes será feita somente quando houver uma necessidade operacional clara. Nesta fase, compartilhar a aplicação web reduz duplicação sem misturar as permissões do backend.
+
+## 11. Estado desta entrega
+
+Implementado:
+
+- workspaces para API, aplicativo móvel, contratos e domínio;
+- API com health check, OpenAPI, CORS restrito, logs com campos sensíveis ocultos e fronteira de autenticação;
+- contratos dos estados de solicitação, rota, coordenadas e erros;
+- máquina de estados testada e utilitários de validade/precisão pública da posição;
+- esquema PostgreSQL/PostGIS inicial;
+- aplicativo Android demonstrativo no visual Bairro Vivo;
+- pipeline de validação no GitHub.
+
+Ainda não ativado:
+
+- autenticação com provedor real;
+- coleta de GPS;
+- persistência dos fluxos do protótipo;
+- WebSocket, FCM e Redis;
+- documentos reais de vendedores.

@@ -8,13 +8,22 @@ O projeto nasce como um piloto em Santo André, inicialmente nos bairros Recreio
 
 Versão: `0.1.0-pilot`
 
-Este repositório contém o protótipo funcional e responsivo das três experiências:
+Este repositório contém o protótipo funcional e responsivo e a primeira fundação técnica do produto:
 
 - `/` — experiência do morador: mapa demonstrativo, pesquisa, categorias, perfis e fluxo “Quero que passe”.
 - `/vendedor` — área operacional: modo rota, demanda por região, solicitações e estados de atendimento.
 - `/admin` — gestão do piloto: aprovação de vendedores, cobertura, funil e segurança.
 
-Todos os dados exibidos nesta etapa são simulados. Não existe coleta real de localização, cadastro, pagamento ou envio de pedidos.
+Além da interface, a base agora inclui:
+
+- API Fastify com OpenAPI e fronteira de autenticação.
+- Contratos TypeScript compartilhados.
+- Regras de domínio testadas.
+- Aplicativo Android Expo inicial no visual Bairro Vivo.
+- PostgreSQL/PostGIS local com esquema geográfico do piloto.
+- Pipeline de validação contínua.
+
+Todos os dados exibidos continuam simulados. Não existe coleta real de localização, cadastro, pagamento ou envio de pedidos nesta etapa.
 
 ## Direção visual
 
@@ -37,6 +46,18 @@ A interface segue o conceito **Bairro Vivo**:
 - Churros
 - Sorvetes e picolés
 
+## Estrutura
+
+```text
+app/                     PWA do morador e painel
+apps/seller-mobile/      Android do vendedor
+services/api/            API Fastify
+packages/contracts/      Contratos compartilhados
+packages/domain/         Regras de negócio
+infra/database/          PostgreSQL/PostGIS local
+docs/                    Arquitetura, escopo e decisões
+```
+
 ## Começando
 
 Requisitos:
@@ -49,23 +70,25 @@ npm install
 npm run dev
 ```
 
+Para subir API, banco e aplicativo Android, consulte [docs/LOCAL_DEVELOPMENT.md](docs/LOCAL_DEVELOPMENT.md).
+
 Validações disponíveis:
 
 ```bash
 npm run lint
-npm test
+npm run check
 ```
 
 ## Próxima evolução técnica
 
-O protótipo atual valida navegação, linguagem e fluxos. A implementação do piloto real será separada em:
+O protótipo atual valida navegação, linguagem e fluxos. A próxima entrega conectará gradualmente a fundação a dados reais:
 
-- PWA responsiva para moradores.
-- Aplicativo Android para o vendedor, com localização consciente em segundo plano.
-- Painel web administrativo.
-- API pública em Node.js/TypeScript.
-- PostgreSQL com PostGIS.
-- Atualizações em tempo real e notificações push.
+- provedor de identidade e papéis de acesso;
+- cadastros e aprovação de vendedores;
+- catálogo persistido;
+- Modo Rota com consentimento e testes em aparelho real;
+- fluxo “Quero que passe” conectado à API;
+- atualizações em tempo real e notificações push.
 
 Veja a especificação em [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) e o escopo fechado em [docs/PILOT_SCOPE.md](docs/PILOT_SCOPE.md).
 

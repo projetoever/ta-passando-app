@@ -1,0 +1,37 @@
+{
+  "expo": {
+    "name": "Tá Passando — Vendedor",
+    "slug": "ta-passando-vendedor",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "scheme": "tapassando",
+    "android": {
+      "package": "com.pontedigital.tapassando.vendedor",
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "FOREGROUND_SERVICE",
+        "FOREGROUND_SERVICE_LOCATION"
+      ]
+    },
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "O Tá Passando usa sua localização somente durante o Modo Rota para mostrar sua aproximação aos clientes.",
+          "locationAlwaysAndWhenInUsePermission": "Durante o Modo Rota, o Tá Passando precisa atualizar sua posição mesmo com a tela bloqueada. Você pode encerrar o rastreamento a qualquer momento.",
+          "isAndroidBackgroundLocationEnabled": true,
+          "isAndroidForegroundServiceEnabled": true
+        }
+      ],
+      "expo-secure-store"
+    ],
+    "extra": {
+      "dataMode": "simulated",
+      "gpsEnabled": false
+    }
+  }
+}
+

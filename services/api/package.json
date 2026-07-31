@@ -1,0 +1,30 @@
+{
+  "name": "@ta-passando/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "start": "node dist/server.js",
+    "build": "tsup --config tsup.config.ts",
+    "test": "vitest run --config vitest.config.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@fastify/cors": "11.3.0",
+    "@fastify/swagger": "9.8.1",
+    "@fastify/swagger-ui": "6.1.1",
+    "@sinclair/typebox": "0.34.52",
+    "@ta-passando/contracts": "*",
+    "@ta-passando/domain": "*",
+    "fastify": "5.11.0",
+    "postgres": "3.4.9"
+  },
+  "devDependencies": {
+    "@types/node": "22.19.19",
+    "tsup": "8.5.1",
+    "tsx": "4.23.1",
+    "typescript": "5.9.3",
+    "vitest": "4.1.10"
+  }
+}
