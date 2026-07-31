@@ -1,0 +1,23 @@
+{
+  "name": "@ta-passando/seller-mobile",
+  "version": "0.1.0",
+  "private": true,
+  "main": "index.ts",
+  "scripts": {
+    "start": "expo start --dev-client",
+    "android": "expo run:android",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@ta-passando/contracts": "*",
+    "expo": "57.0.9",
+    "expo-location": "57.0.7",
+    "expo-secure-store": "57.0.1",
+    "react": "19.2.6",
+    "react-native": "0.86.2"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.14",
+    "typescript": "5.9.3"
+  }
+}
