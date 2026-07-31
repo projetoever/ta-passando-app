@@ -4,6 +4,7 @@ import type { ComponentType, FormEvent } from "react";
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import {
+  AlertCircle,
   Bell,
   Carrot,
   CheckCircle2,
@@ -22,14 +23,21 @@ import {
   ShieldCheck,
   ShoppingBasket,
   SprayCan,
+  Star,
   Store,
   UserPlus,
   Wheat,
   X,
 } from "lucide-react";
+import {
+  activeRequestStatuses,
+  requestStatusCopy,
+  useDemoPilot,
+  type DemoRequest,
+} from "./demo-pilot";
 
 type Icon = ComponentType<{ size?: number; strokeWidth?: number }>;
-type SheetStep = "details" | "request" | "sent";
+type SheetStep = "details" | "request" | "tracking";
 
 type Seller = {
   id: number;
@@ -122,6 +130,13 @@ export default function Home() {
   const [selectedSeller, setSelectedSeller] = useState<Seller | null>(null);
   const [sheetStep, setSheetStep] = useState<SheetStep>("details");
   const [favorites, setFavorites] = useState<number[]>([3]);
+  const {
+    state: demo,
+    createRequest,
+    transitionRequest,
+    rateRequest,
+    resetScenario,
+  } = useDemoPilot();
 
   const visibleSellers = useMemo(() => {
     const normalized = query.trim().toLocaleLowerCase("pt-BR");
@@ -159,19 +174,39 @@ export default function Home() {
 
   const submitRequest = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setSheetStep("sent");
+    if (!selectedSeller) return;
+    const data = new FormData(event.currentTarget);
+    createRequest({
+      sellerId: selectedSeller.id,
+      sellerName: selectedSeller.name,
+      customer: "Marina A.",
+      product: String(data.get("product") ?? selectedSeller.products[0]),
+      quantity: String(data.get("quantity") ?? "1"),
+      waitLabel: String(data.get("wait") ?? "20 minutos"),
+      meeting: String(data.get("meeting") ?? "Portaria / frente de casa"),
+      reference: String(data.get("reference") ?? ""),
+      distance: "450 m",
+    });
+    setSheetStep("tracking");
+  };
+
+  const openTracking = () => {
+    if (!demo.request) return;
+    const seller = sellers.find((item) => item.id === demo.request?.sellerId) ?? sellers[0];
+    setSelectedSeller(seller);
+    setSheetStep("tracking");
   };
 
   return (
     <main className="client-shell">
       <header className="topbar">
-        <a className="brand" href="#inicio" aria-label="Tá Passando — início">
+        <a className="brand" href="#inicio" aria-label="TE Vi na TV — início">
           <span className="brand-mark" aria-hidden="true">
             <MapPin size={28} strokeWidth={3} />
             <i />
           </span>
-          <span>Tá Passando</span>
-          <small>PILOTO</small>
+          <span>TE Vi na TV</span>
+          <small>NOME EM TESTE</small>
         </a>
 
         <div className="topbar-actions">
@@ -297,6 +332,18 @@ export default function Home() {
         </div>
       </section>
 
+      {demo.request && (
+        <section className={`demo-request-banner ${demo.request.status}`} aria-label="Atendimento em demonstração">
+          <div className="demo-request-icon"><Navigation size={22} /></div>
+          <div>
+            <span>SIMULAÇÃO INTEGRADA • {demo.request.sellerName}</span>
+            <strong>{requestStatusCopy[demo.request.status].label}</strong>
+            <small>{demo.request.product} • {demo.request.meeting}</small>
+          </div>
+          <button type="button" onClick={openTracking}>Acompanhar atendimento <ChevronRight size={17} /></button>
+        </section>
+      )}
+
       <section className="nearby-section" aria-labelledby="nearby-title">
         <div className="section-heading">
           <div>
@@ -354,14 +401,23 @@ export default function Home() {
       </section>
 
       <footer className="site-footer">
-        <a className="brand footer-brand" href="#inicio"><MapPin size={22} /> Tá Passando</a>
+        <a className="brand footer-brand" href="#inicio"><MapPin size={22} /> TE Vi na TV</a>
         <p>Piloto hiperlocal • Santo André, SP</p>
         <Link href="/admin">Acessar demonstração administrativa</Link>
       </footer>
 
       <div className="mobile-status">
-        <span><i className="live-dot" /> {visibleSellers.length} próximos</span>
-        <button type="button" onClick={focusSearch}>Buscar</button>
+        {demo.request ? (
+          <>
+            <span><i className="live-dot" /> {requestStatusCopy[demo.request.status].label}</span>
+            <button type="button" onClick={openTracking}>Acompanhar</button>
+          </>
+        ) : (
+          <>
+            <span><i className="live-dot" /> {visibleSellers.length} próximos</span>
+            <button type="button" onClick={focusSearch}>Buscar</button>
+          </>
+        )}
       </div>
 
       {selectedSeller && (
@@ -376,8 +432,9 @@ export default function Home() {
               <SellerDetails
                 seller={selectedSeller}
                 favorite={favorites.includes(selectedSeller.id)}
+                existingRequest={demo.request?.sellerId === selectedSeller.id}
                 onFavorite={() => toggleFavorite(selectedSeller.id)}
-                onRequest={() => setSheetStep("request")}
+                onRequest={() => setSheetStep(demo.request?.sellerId === selectedSeller.id ? "tracking" : "request")}
               />
             )}
 
@@ -390,47 +447,44 @@ export default function Home() {
 
                 <label>
                   Produto
-                  <select defaultValue={selectedSeller.products[0]}>
+                  <select name="product" defaultValue={selectedSeller.products[0]}>
                     {selectedSeller.products.map((product) => <option key={product}>{product}</option>)}
                   </select>
                 </label>
                 <div className="form-row">
                   <label>
                     Quantidade
-                    <select defaultValue="1"><option>1</option><option>2</option><option>3</option><option>4+</option></select>
+                    <select name="quantity" defaultValue="1"><option>1</option><option>2</option><option>3</option><option>4+</option></select>
                   </label>
                   <label>
                     Posso esperar
-                    <select defaultValue="20 minutos"><option>10 minutos</option><option>20 minutos</option><option>30 minutos</option><option>1 hora</option></select>
+                    <select name="wait" defaultValue="20 minutos"><option>10 minutos</option><option>20 minutos</option><option>30 minutos</option><option>1 hora</option></select>
                   </label>
                 </div>
                 <label>
                   Ponto de encontro seguro
-                  <select defaultValue="Portaria / frente de casa"><option>Portaria / frente de casa</option><option>Esquina próxima</option><option>Comércio de referência</option><option>Praça ou ponto público</option></select>
+                  <select name="meeting" defaultValue="Portaria / frente de casa"><option>Portaria / frente de casa</option><option>Esquina próxima</option><option>Comércio de referência</option><option>Praça ou ponto público</option></select>
                 </label>
                 <label>
                   Referência <span>(opcional)</span>
-                  <input type="text" placeholder="Ex.: próximo à farmácia" />
+                  <input name="reference" type="text" placeholder="Ex.: próximo à farmácia" />
                 </label>
                 <div className="privacy-note"><ShieldCheck size={18} /> Seu endereço exato não aparece publicamente no mapa.</div>
                 <button className="primary-button" type="submit"><Bell size={19} /> Enviar interesse</button>
               </form>
             )}
 
-            {sheetStep === "sent" && (
-              <div className="request-success">
-                <div className="success-icon"><CheckCircle2 size={40} /></div>
-                <span className="section-kicker">Interesse enviado</span>
-                <h2>Agora é só aguardar o aceite</h2>
-                <p>{selectedSeller.name} recebeu sua solicitação demonstrativa.</p>
-                <div className="status-timeline">
-                  <span className="done"><i><PackageCheck size={17} /></i><strong>Solicitação enviada</strong><small>agora</small></span>
-                  <span><i><Clock3 size={17} /></i><strong>Aguardando vendedor</strong><small>expira em 20 min</small></span>
-                  <span><i><Navigation size={17} /></i><strong>A caminho</strong><small>após o aceite</small></span>
-                </div>
-                <button className="primary-button" type="button" onClick={closeSeller}>Entendi</button>
-                <small className="simulation-label">Simulação do fluxo do piloto — nenhum pedido real foi enviado.</small>
-              </div>
+            {sheetStep === "tracking" && demo.request && (
+              <CustomerRequestTracking
+                request={demo.request}
+                onCancel={() => transitionRequest("cancelled")}
+                onRate={rateRequest}
+                onReset={() => {
+                  resetScenario();
+                  closeSeller();
+                }}
+                onClose={closeSeller}
+              />
             )}
           </aside>
         </div>
@@ -442,11 +496,13 @@ export default function Home() {
 function SellerDetails({
   seller,
   favorite,
+  existingRequest,
   onFavorite,
   onRequest,
 }: {
   seller: Seller;
   favorite: boolean;
+  existingRequest: boolean;
   onFavorite: () => void;
   onRequest: () => void;
 }) {
@@ -474,9 +530,90 @@ function SellerDetails({
       <div className="payment-row"><ShoppingBasket size={19} /><span><small>Formas de pagamento</small><strong>{seller.payment}</strong></span></div>
 
       <button className="primary-button" type="button" onClick={onRequest}>
-        <Navigation size={20} /> Quero que passe por aqui
+        <Navigation size={20} /> {existingRequest ? "Acompanhar minha solicitação" : "Quero que passe por aqui"}
       </button>
       <p className="safe-copy"><ShieldCheck size={16} /> Você escolhe um ponto seguro de encontro. O endereço não fica público.</p>
+    </div>
+  );
+}
+
+const trackingSteps = [
+  { status: "pending", label: "Solicitação enviada", icon: PackageCheck },
+  { status: "accepted", label: "Vendedor aceitou", icon: CheckCircle2 },
+  { status: "on_the_way", label: "Vendedor a caminho", icon: Navigation },
+  { status: "arrived", label: "Chegou ao ponto", icon: MapPin },
+  { status: "completed", label: "Atendimento concluído", icon: ShoppingBasket },
+] as const;
+
+function CustomerRequestTracking({
+  request,
+  onCancel,
+  onRate,
+  onReset,
+  onClose,
+}: {
+  request: DemoRequest;
+  onCancel: () => void;
+  onRate: (rating: number) => void;
+  onReset: () => void;
+  onClose: () => void;
+}) {
+  const currentIndex = trackingSteps.findIndex((step) => step.status === request.status);
+  const open = activeRequestStatuses.includes(request.status);
+  const terminalWithoutCompletion = ["declined", "expired", "cancelled"].includes(request.status);
+
+  return (
+    <div className="request-success tracking-view">
+      <div className={`success-icon status-${request.status}`}>
+        {terminalWithoutCompletion ? <AlertCircle size={40} /> : <CheckCircle2 size={40} />}
+      </div>
+      <span className="section-kicker">Atendimento demonstrativo</span>
+      <h2>{requestStatusCopy[request.status].label}</h2>
+      <p>{requestStatusCopy[request.status].customer}</p>
+
+      <div className="tracking-summary">
+        <span><small>Vendedor</small><strong>{request.sellerName}</strong></span>
+        <span><small>Produto</small><strong>{request.quantity} • {request.product}</strong></span>
+        <span><small>Ponto seguro</small><strong>{request.meeting}</strong></span>
+      </div>
+
+      {!terminalWithoutCompletion && (
+        <div className="status-timeline complete-flow">
+          {trackingSteps.map((step, index) => {
+            const StepIcon = step.icon;
+            const done = currentIndex >= index;
+            return (
+              <span className={`${done ? "done" : ""}${currentIndex === index ? " current" : ""}`} key={step.status}>
+                <i><StepIcon size={17} /></i>
+                <strong>{step.label}</strong>
+                <small>{currentIndex === index ? "status atual" : done ? "confirmado" : "próxima etapa"}</small>
+              </span>
+            );
+          })}
+        </div>
+      )}
+
+      {request.status === "completed" && (
+        <div className="rating-card">
+          <strong>Como foi esta experiência?</strong>
+          <span>Toque para registrar uma avaliação demonstrativa.</span>
+          <div aria-label="Avaliação do atendimento">
+            {[1, 2, 3, 4, 5].map((value) => (
+              <button type="button" key={value} aria-label={`${value} estrelas`} onClick={() => onRate(value)}>
+                <Star size={23} fill={(request.rating ?? 0) >= value ? "currentColor" : "none"} />
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="tracking-actions">
+        {open && <Link href="/vendedor">Continuar como vendedor <ChevronRight size={17} /></Link>}
+        <button className="primary-button" type="button" onClick={onClose}>Fechar acompanhamento</button>
+        {open && <button className="quiet-danger" type="button" onClick={onCancel}>Cancelar solicitação</button>}
+        {!open && <button className="quiet-button" type="button" onClick={onReset}>Reiniciar cenário</button>}
+      </div>
+      <small className="simulation-label">Os estados são sincronizados apenas neste aparelho. Nenhum pedido ou localização real foi enviado.</small>
     </div>
   );
 }

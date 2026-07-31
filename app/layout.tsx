@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Tá Passando — comércio do bairro em movimento",
+  title: "TE Vi na TV — o vendedor do bairro perto de você",
   description:
-    "Encontre vendedores ambulantes próximos e avise quando quiser comprar.",
+    "Encontre vendedores ambulantes próximos, avise quando quiser comprar e acompanhe o atendimento.",
   other: {
     "codex-preview": "development",
   },

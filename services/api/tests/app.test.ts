@@ -39,6 +39,7 @@ describe("API foundation", () => {
 
     expect(response.statusCode).toBe(200);
     expect(response.json()).toMatchObject({
+      product: "TE Vi na TV",
       stage: "identity-catalog",
       dataMode: "simulated",
       gpsEnabled: false,

@@ -1,4 +1,6 @@
-# Tá Passando
+# TE Vi na TV
+
+Nome experimental em validação para a plataforma hiperlocal anteriormente apresentada como **Tá Passando**. O namespace técnico e o endereço da demonstração permanecem temporariamente inalterados para preservar histórico e integrações durante o piloto.
 
 Plataforma hiperlocal para conectar moradores e vendedores ambulantes em movimento.
 

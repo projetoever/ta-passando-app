@@ -1,5 +1,11 @@
 # Escopo — 0.1.0-pilot
 
+## Marca em validação
+
+- Nome experimental: **TE Vi na TV**.
+- Assinatura: **O vendedor do bairro perto de você.**
+- O nome será testado com moradores e vendedores antes de qualquer migração de endereço, pacote ou identificador técnico.
+
 ## Região
 
 - Santo André, SP.

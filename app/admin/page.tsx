@@ -18,6 +18,9 @@ import {
   LayoutDashboard,
   Map,
   MapPin,
+  Navigation,
+  RotateCcw,
+  Route,
   Settings,
   ShieldCheck,
   SlidersHorizontal,
@@ -26,6 +29,7 @@ import {
   Users,
   X,
 } from "lucide-react";
+import { requestStatusCopy, useDemoPilot } from "../demo-pilot";
 
 type SellerReviewStatus = "pending" | "approved" | "rejected";
 
@@ -37,6 +41,7 @@ const initialSellerReviews = [
 
 export default function AdminDashboard() {
   const [sellerReviews, setSellerReviews] = useState(initialSellerReviews);
+  const { state: demo, resetScenario } = useDemoPilot();
 
   const reviewSeller = (id: number, status: SellerReviewStatus) => {
     setSellerReviews((current) =>
@@ -49,9 +54,9 @@ export default function AdminDashboard() {
   return (
     <main className="operator-shell admin-shell">
       <aside className="operator-sidebar admin-sidebar">
-        <Link className="brand operator-brand" href="/" aria-label="Tá Passando — administração">
+        <Link className="brand operator-brand" href="/" aria-label="TE Vi na TV — administração">
           <span className="brand-mark" aria-hidden="true"><MapPin size={25} strokeWidth={3} /><i /></span>
-          <span>Tá Passando</span>
+          <span>TE Vi na TV</span>
         </Link>
         <span className="role-label">ADMINISTRAÇÃO DO PILOTO</span>
 
@@ -82,7 +87,7 @@ export default function AdminDashboard() {
         </header>
 
         <section className="pilot-banner">
-          <div className="pilot-state"><span className="live-dot" /><div><small>PILOTO EM PREPARAÇÃO</small><strong>Base operacional pronta para validação</strong></div></div>
+          <div className="pilot-state"><span className="live-dot" /><div><small>PILOTO EM PREPARAÇÃO</small><strong>Experiência integrada pronta para validação</strong></div></div>
           <div className="pilot-progress"><span><strong>6 de 8</strong><small>vendedores recrutados</small></span><div><i style={{ width: "75%" }} /></div></div>
           <button type="button"><Gauge size={18} /> Ver critérios de avanço</button>
         </section>
@@ -90,9 +95,38 @@ export default function AdminDashboard() {
         <div className="admin-metrics">
           <article><span className="metric-icon green"><Store size={21} /></span><div><small>Vendedores ativos</small><strong>6</strong><em>Meta: 8</em></div><b>75%</b></article>
           <article><span className="metric-icon blue"><Users size={21} /></span><div><small>Moradores convidados</small><strong>84</strong><em>Meta: 100</em></div><b>84%</b></article>
-          <article><span className="metric-icon orange"><ChartColumnIncreasing size={21} /></span><div><small>Interesses simulados</small><strong>47</strong><em>Últimos 7 dias</em></div><b>+18%</b></article>
+          <article><span className="metric-icon orange"><ChartColumnIncreasing size={21} /></span><div><small>Interesses simulados</small><strong>{47 + (demo.request ? 1 : 0)}</strong><em>{demo.request ? "1 cenário conectado" : "Últimos 7 dias"}</em></div><b>+18%</b></article>
           <article><span className="metric-icon amber"><ShieldCheck size={21} /></span><div><small>Incidentes críticos</small><strong>0</strong><em>Meta obrigatória</em></div><b className="safe">OK</b></article>
         </div>
+
+        <section className={`operation-watch${demo.request ? " has-request" : ""}`} aria-label="Monitoramento do atendimento demonstrativo">
+          <div className="operation-watch-heading">
+            <span className="metric-icon orange"><Route size={21} /></span>
+            <div>
+              <small>CENÁRIO ACOMPANHADO</small>
+              <strong>{demo.request ? `${demo.request.customer} → ${demo.request.sellerName}` : "Nenhuma solicitação criada neste aparelho"}</strong>
+              <span>{demo.request ? requestStatusCopy[demo.request.status].label : "Inicie a jornada pela visão do morador."}</span>
+            </div>
+          </div>
+          {demo.request ? (
+            <>
+              <div className="operation-flow" aria-label="Etapas do atendimento">
+                {["pending", "accepted", "on_the_way", "arrived", "completed"].map((status, index) => {
+                  const current = ["pending", "accepted", "on_the_way", "arrived", "completed"].indexOf(demo.request?.status ?? "");
+                  return <span className={current >= index ? "done" : ""} key={status}><i>{index + 1}</i>{requestStatusCopy[status as keyof typeof requestStatusCopy].label}</span>;
+                })}
+              </div>
+              <div className="operation-watch-actions">
+                <span className={`route-state-pill ${demo.routeStatus}`}><Navigation size={14} /> Rota {demo.routeStatus === "active" ? "ativa" : demo.routeStatus === "paused" ? "pausada" : "encerrada"}</span>
+                <Link href="/vendedor">Operar como vendedor</Link>
+                <Link href="/">Ver como morador</Link>
+                <button type="button" onClick={resetScenario}><RotateCcw size={14} /> Reiniciar</button>
+              </div>
+            </>
+          ) : (
+            <Link className="operation-start" href="/">Criar solicitação demonstrativa <Navigation size={16} /></Link>
+          )}
+        </section>
 
         <div className="admin-layout">
           <section className="review-panel" id="vendedores" aria-labelledby="review-title">
@@ -148,9 +182,9 @@ export default function AdminDashboard() {
           <section className="funnel-panel">
             <div className="panel-heading"><div><span className="dashboard-kicker">Últimos 7 dias</span><h2>Funil de solicitações</h2></div></div>
             <div className="funnel-bars">
-              <FunnelBar label="Interesses enviados" value={47} percentage={100} tone="orange" />
-              <FunnelBar label="Aceitos" value={26} percentage={55} tone="green" />
-              <FunnelBar label="Atendidos" value={19} percentage={40} tone="blue" />
+              <FunnelBar label="Interesses enviados" value={47 + (demo.request ? 1 : 0)} percentage={100} tone="orange" />
+              <FunnelBar label="Aceitos" value={26 + (demo.request && demo.request.status !== "pending" && !["declined", "expired", "cancelled"].includes(demo.request.status) ? 1 : 0)} percentage={55} tone="green" />
+              <FunnelBar label="Atendidos" value={19 + (demo.request?.status === "completed" ? 1 : 0)} percentage={40} tone="blue" />
             </div>
             <p><FileCheck2 size={16} /> Conversão experimental de atendimento: <strong>40%</strong>. Meta mínima da validação: 25%.</p>
           </section>
