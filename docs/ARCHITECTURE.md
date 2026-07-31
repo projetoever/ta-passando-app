@@ -73,6 +73,14 @@ Módulos de domínio:
 7. Denúncias e moderação.
 8. Métricas e auditoria.
 
+### Identidade do piloto
+
+- Google Identity Platform/Firebase Authentication emite o token do usuário.
+- A API valida assinatura, emissor e audiência por OIDC/JWKS.
+- Nenhuma senha é armazenada no banco do Tá Passando.
+- O PostgreSQL mantém o papel operacional (`customer`, `seller`, `admin`) e o estado da conta.
+- Todo novo usuário começa como morador; o papel de vendedor é concedido somente após aprovação administrativa.
+
 ## 5. Modelo de dados inicial
 
 | Entidade | Responsabilidade |
@@ -172,7 +180,10 @@ A separação física da PWA e do painel em aplicações independentes será fei
 Implementado:
 
 - workspaces para API, aplicativo móvel, contratos e domínio;
-- API com health check, OpenAPI, CORS restrito, logs com campos sensíveis ocultos e fronteira de autenticação;
+- API com health check, OpenAPI, CORS restrito, logs com campos sensíveis ocultos e validação OIDC;
+- registro persistente de conta e atualização do perfil do morador;
+- solicitação, revisão e aprovação de cadastro de vendedor com auditoria;
+- criação, edição, listagem e remoção de itens do catálogo;
 - contratos dos estados de solicitação, rota, coordenadas e erros;
 - máquina de estados testada e utilitários de validade/precisão pública da posição;
 - esquema PostgreSQL/PostGIS inicial;
@@ -181,8 +192,8 @@ Implementado:
 
 Ainda não ativado:
 
-- autenticação com provedor real;
+- projeto do Google Identity Platform e ambiente Cloud SQL do piloto;
 - coleta de GPS;
-- persistência dos fluxos do protótipo;
+- persistência do fluxo “Quero que passe” na interface pública;
 - WebSocket, FCM e Redis;
 - documentos reais de vendedores.

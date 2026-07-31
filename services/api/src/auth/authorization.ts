@@ -3,7 +3,10 @@ import type { UserRole } from "@ta-passando/contracts";
 
 export type AuthPrincipal = {
   subject: string;
-  roles: UserRole[];
+  provider: string;
+  email?: string;
+  phoneNumber?: string;
+  displayName?: string;
 };
 
 export interface AccessTokenVerifier {
@@ -18,6 +21,11 @@ export class AuthenticationError extends Error {
 export class AuthorizationError extends Error {
   readonly statusCode = 403;
   readonly code = "INSUFFICIENT_ROLE";
+}
+
+export class IdentityProviderUnavailableError extends Error {
+  readonly statusCode = 503;
+  readonly code = "IDENTITY_PROVIDER_UNAVAILABLE";
 }
 
 export async function authenticateRequest(
@@ -38,11 +46,10 @@ export async function authenticateRequest(
 }
 
 export function requireAnyRole(
-  principal: AuthPrincipal,
+  role: UserRole,
   allowedRoles: readonly UserRole[],
 ): void {
-  if (!principal.roles.some((role) => allowedRoles.includes(role))) {
+  if (!allowedRoles.includes(role)) {
     throw new AuthorizationError("O perfil não possui permissão para esta ação.");
   }
 }
-

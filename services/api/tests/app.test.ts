@@ -32,17 +32,16 @@ describe("API foundation", () => {
     });
   });
 
-  it("keeps real GPS disabled in the foundation", async () => {
+  it("keeps real GPS disabled while identity and catalog become ready", async () => {
     const app = await createApp({ config, logger: false });
     apps.push(app);
     const response = await app.inject({ method: "GET", url: "/v1/meta" });
 
     expect(response.statusCode).toBe(200);
     expect(response.json()).toMatchObject({
-      stage: "foundation",
+      stage: "identity-catalog",
       dataMode: "simulated",
       gpsEnabled: false,
     });
   });
 });
-

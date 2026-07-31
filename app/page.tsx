@@ -23,6 +23,7 @@ import {
   ShoppingBasket,
   SprayCan,
   Store,
+  UserPlus,
   Wheat,
   X,
 } from "lucide-react";
@@ -175,6 +176,10 @@ export default function Home() {
 
         <div className="topbar-actions">
           <span className="demo-pill">Dados demonstrativos</span>
+          <Link className="outline-button account-button" href="/cadastro">
+            <UserPlus size={18} />
+            Criar conta
+          </Link>
           <Link className="outline-button" href="/vendedor">
             <Store size={18} />
             Sou vendedor

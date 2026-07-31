@@ -22,6 +22,8 @@ docker compose -f infra/database/docker-compose.yml up -d
 
 O banco de desenvolvimento fica em `localhost:5432`, com a extensão PostGIS e o esquema inicial carregados automaticamente na primeira criação do volume.
 
+Os arquivos SQL são executados em ordem na criação de um volume novo. A migração `0002_identity_catalog.sql` adiciona identidade, bairros do usuário, revisão do vendedor e unidade do produto.
+
 ## PWA e painel
 
 ```bash
@@ -44,6 +46,16 @@ npm run api:dev
 - Capacidades: `GET http://localhost:3001/v1/meta`.
 - OpenAPI: `http://localhost:3001/docs`.
 
+Para testar rotas autenticadas, configure no `.env`:
+
+```text
+OIDC_ISSUER_URL=https://securetoken.google.com/SEU_PROJECT_ID
+OIDC_AUDIENCE=SEU_PROJECT_ID
+OIDC_JWKS_URL=https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com
+```
+
+O token de identidade deve ser enviado como `Authorization: Bearer <token>`. Sem essas variáveis a API recusa operações autenticadas com resposta explícita de ambiente não configurado; não existe token mestre ou atalho de produção.
+
 ## Aplicativo Android do vendedor
 
 ```bash
@@ -59,4 +71,3 @@ npm run check
 ```
 
 Esse comando valida lint, TypeScript, testes de domínio/API, build da PWA e o artefato de hospedagem.
-

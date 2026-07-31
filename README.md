@@ -11,19 +11,23 @@ Versão: `0.1.0-pilot`
 Este repositório contém o protótipo funcional e responsivo e a primeira fundação técnica do produto:
 
 - `/` — experiência do morador: mapa demonstrativo, pesquisa, categorias, perfis e fluxo “Quero que passe”.
+- `/cadastro` — prévia responsiva do onboarding de morador e vendedor.
 - `/vendedor` — área operacional: modo rota, demanda por região, solicitações e estados de atendimento.
 - `/admin` — gestão do piloto: aprovação de vendedores, cobertura, funil e segurança.
 
 Além da interface, a base agora inclui:
 
-- API Fastify com OpenAPI e fronteira de autenticação.
+- API Fastify com OpenAPI e validação de tokens OIDC.
+- Cadastro persistente de moradores e vendedores.
+- Aprovação administrativa com papéis de acesso e auditoria.
+- Catálogo persistente por vendedor.
 - Contratos TypeScript compartilhados.
 - Regras de domínio testadas.
 - Aplicativo Android Expo inicial no visual Bairro Vivo.
 - PostgreSQL/PostGIS local com esquema geográfico do piloto.
 - Pipeline de validação contínua.
 
-Todos os dados exibidos continuam simulados. Não existe coleta real de localização, cadastro, pagamento ou envio de pedidos nesta etapa.
+Os dados exibidos na demonstração web continuam simulados e o GPS permanece desligado. A API já suporta cadastro e catálogo persistentes quando conectada ao PostgreSQL e ao Google Identity Platform; o ambiente público do piloto ainda não foi provisionado.
 
 ## Direção visual
 
@@ -83,9 +87,6 @@ npm run check
 
 O protótipo atual valida navegação, linguagem e fluxos. A próxima entrega conectará gradualmente a fundação a dados reais:
 
-- provedor de identidade e papéis de acesso;
-- cadastros e aprovação de vendedores;
-- catálogo persistido;
 - Modo Rota com consentimento e testes em aparelho real;
 - fluxo “Quero que passe” conectado à API;
 - atualizações em tempo real e notificações push.
